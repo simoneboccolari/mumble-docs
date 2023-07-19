@@ -56,7 +56,6 @@ export const updatePinecone = async (client, indexName, docs) => {
                 batch = []
             }
         }
-        // Log the number of vectors updated
         console.log(`Pinecone index updated with ${chunks.length} vectors`)
     }
 }

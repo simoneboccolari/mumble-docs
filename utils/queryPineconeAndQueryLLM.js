@@ -12,7 +12,7 @@ export const queryPineconeVectorStoreAndQueryLLM = async (client, indexName, que
     // Increase topK to return a higher number of matches (more expensive)
     let queryResponse = await index.query({
         queryRequest: {
-            topK: 3,
+            topK: 5,
             vector: queryEmbedding,
             includeMetadata: true,
             includeValues: true
@@ -27,21 +27,17 @@ export const queryPineconeVectorStoreAndQueryLLM = async (client, indexName, que
             modelName: 'gpt-3.5-turbo'
         })
         const chain = loadQAStuffChain(llm)
-        // 10. Extract and concatenate page content from matched documents
+        // Extract and concatenate page content from matched documents
         const concatenatedPageContent = queryResponse.matches
             .map((match) => match.metadata.pageContent)
             .join(' ')
-
-        // console.log('PAGE CONTENT', concatenatedPageContent)
-        // 11. Execute the chain with input documents and question
+        // Execute the chain with input documents and question
         const result = await chain.call({
             input_documents: [new Document({ pageContent: concatenatedPageContent })],
             question: question
         })
-        // 12. Log the answer
         console.log(`Answer: ${result.text}`)
     } else {
-        // 13. Log that there are no matches, so GPT-3 will not be queried
         console.log('Since there are no matches, GPT-3 will not be queried.')
     }
 }
