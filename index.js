@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv'
 import { PineconeClient } from '@pinecone-database/pinecone'
 import * as readline from 'readline'
+import { PromptTemplate } from 'langchain/prompts'
 import { queryPineconeVectorStoreAndQueryLLM } from './utils/queryPineconeAndQueryLLM.js'
 
 dotenv.config()
@@ -27,8 +28,16 @@ function askQuestion(query) {
 
 const question = await askQuestion('Fai una domanda ')
 
+const prompt = PromptTemplate.fromTemplate(
+    `Respond to the following question in the most complete way possible. {question}?`
+)
+
+const formattedPrompt = await prompt.format({
+    question
+})
+
 const indexName = process.env.PINECONE_INDEX_NAME
 
 ;(async () => {
-    await queryPineconeVectorStoreAndQueryLLM(client, indexName, question)
+    await queryPineconeVectorStoreAndQueryLLM(client, indexName, formattedPrompt)
 })()
